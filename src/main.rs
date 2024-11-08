@@ -2,6 +2,7 @@ use anyhow::{Context, Ok, Result};
 use layer::Layer;
 use ndarray::{s, Array1, Array2, Axis};
 use ndarray_rand::rand::{seq::SliceRandom, thread_rng};
+use network::Network2;
 
 mod layer;
 mod network;
@@ -101,44 +102,18 @@ fn main() -> Result<()> {
     // dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
     // dW1 = (1/m) * (dZ1 . (X.T))
     // dB1 = (1/m) * sum(dZ1)
-    // Flow:
 
-    // let mut layers: [Layer; 2] = [
-    //     ];
-    let x = &x_train;
-    let mut layer1 = Layer::new(x.shape()[0], 10, layer::ActivationFn::ReLu);
-    let mut layer2 = Layer::new(10, 10, layer::ActivationFn::Softmax);
+    let mut network = Network2::init(
+        m,
+        &x_train,
+        Layer::new(x_train.shape()[0], 10, layer::ActivationFn::ReLu),
+        Layer::new(10, 10, layer::ActivationFn::Softmax),
+        y_train,
+    );
 
-    let iterations = 500;
+    network.train(0.1, 500);
 
-    for i in 1..=iterations {
-        // println!("starting");
-        layer1.forward(&x_train);
-        // println!("forwarded layer1");
-        layer2.forward(&layer1.a);
-        // println!("forwarded layer2");
-        // println!("a2[..][0]: {:?}", layer2.a.slice(s![.., 0]));
-
-        let alpha = 0.1;
-        let one_hot_y = one_hot_encode(&y_train);
-        let dz2 = layer2.a.clone() - one_hot_y;
-        // println!("m={}, 1/m = {:?}", m, (1 / m) as f64);
-        // println!("dz2 = a2-y: {:?}", dz2.slice(s![.., 0]));
-        let dw2 = (1. / m as f64) as f64 * dz2.dot(&layer1.a.t());
-        let db2 = (1. / m as f64) * dz2.sum();
-        let dz1 = layer2.weights.t().dot(&dz2) * relu_deriv(&layer1.z);
-        let dw1 = (1. / m as f64) as f64 * (dz1.dot(&x.t()));
-        let db1 = (1. / m as f64) as f64 * dz1.sum();
-
-        layer1.update(alpha, &dw1, db1);
-        layer2.update(alpha, &dw2, db2);
-
-        if i % 10 == 0 {
-            println!("Iteration: {}", i);
-            let predictions = get_predictions(&layer2.a);
-            println!("Accuracy: {}", get_accuracy(&predictions, &y_train));
-        }
-    }
+   
 
     // println!("out shape: {:?}", out.shape());
     // println!("out shape: {:?}", out.slice(s![.., 0]));
@@ -146,50 +121,3 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn get_predictions(a2: &Array2<f64>) -> Array1<f64> {
-    let preds = a2
-        .axis_iter(Axis(1))
-        .map(|col| {
-            col.iter()
-                .enumerate()
-                .max_by(|(_, a), (_, b)| a.partial_cmp(b).expect(&format!("a:{}, b: {}", a, b)))
-                .map(|(index, _)| index as f64)
-                .expect(&format!("Column must not be empty"))
-        })
-        .collect();
-    Array1::from_vec(preds)
-}
-
-fn get_accuracy(predictions: &Array1<f64>, y: &Array1<f64>) -> f64 {
-    println!("predictions: {:?}\ny: {:?}", predictions, y);
-    let correct_predictions = predictions
-        .iter()
-        .zip(y.iter())
-        .filter(|(pred, actual)| pred == actual)
-        .count();
-    correct_predictions as f64 / y.len() as f64
-}
-pub fn relu_deriv(z: &Array2<f64>) -> Array2<f64> {
-    return z.mapv(|x| if x > 0. { 1. } else { 0. });
-}
-
-pub fn one_hot_encode(y: &Array1<f64>) -> Array2<f64> {
-    // y (y_dev and y_train) is a singlerow currently
-    // we want to encode it and turn it into a 2d array =>
-    // [1,0,4,2] should be
-    // [
-    //  [0,1,0,0]
-    //  [1,0,0,0]
-    //  [0,0,0,1]
-    //  [0,0,0,0]
-    //  [0,0,1,0]
-    //  ]
-    let mut arr = Array2::zeros((10, y.len()));
-    println!("y shape= {:?}", y.shape());
-    for (i, &x) in y.iter().enumerate() {
-        arr[(x as usize, i)] = 1.;
-    }
-    // println!("y= {:?}", y);
-    // println!("{:?}", arr.slice(s![.., 0]));
-    arr
-}

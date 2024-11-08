@@ -1,13 +1,13 @@
-use ndarray::{s, Array, Array1, Array2, Axis};
+use ndarray::{Array1, Array2, Axis};
 use ndarray_rand::{
     rand::{rngs::StdRng, SeedableRng},
-    rand_distr::{self, Uniform},
+    rand_distr::Uniform,
     RandomExt,
 };
 
 #[derive(Debug)]
 pub enum ActivationFn {
-    Sigmoid,
+    // Sigmoid,
     ReLu,
     Softmax,
 }
@@ -84,7 +84,7 @@ impl Layer {
 
     pub fn apply_activation_fn(&mut self) -> () {
         match self.activation_fn {
-            ActivationFn::Sigmoid => todo!(),
+            // ActivationFn::Sigmoid => todo!(),
             ActivationFn::ReLu => self.a = self.z.mapv(|x| if x < 0. { 0. } else { x }),
             ActivationFn::Softmax => {
                 // println!("z = {}", self.z.slice(s![.., 0]));
