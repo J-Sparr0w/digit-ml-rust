@@ -1,4 +1,4 @@
-use ndarray::{s, Array, Array1, Array2};
+use ndarray::{s, Array, Array1, Array2, Axis};
 use ndarray_rand::{
     rand::{rngs::StdRng, SeedableRng},
     rand_distr::{self, Uniform},
@@ -87,9 +87,17 @@ impl Layer {
             ActivationFn::Sigmoid => todo!(),
             ActivationFn::ReLu => self.a = self.z.mapv(|x| if x < 0. { 0. } else { x }),
             ActivationFn::Softmax => {
+                // println!("z = {}", self.z.slice(s![.., 0]));
                 let exp_arr = self.z.mapv(|x| x.exp());
-                let sum = exp_arr.sum();
-                self.a = exp_arr.mapv(|x| x / sum);
+                // println!("exp_arr = {}", exp_arr.slice(s![.., 0]));
+                let sum_vec = exp_arr
+                    .axis_iter(Axis(1))
+                    .map(|col| col.sum())
+                    .collect::<Vec<f64>>();
+                let sum = Array1::from_vec(sum_vec);
+                // println!("sum = {:?}", sum);
+                // self.a = exp_arr.mapv(|x| x / sum);
+                self.a = exp_arr / sum;
             }
         }
     }

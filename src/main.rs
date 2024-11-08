@@ -109,7 +109,7 @@ fn main() -> Result<()> {
     let mut layer1 = Layer::new(x.shape()[0], 10, layer::ActivationFn::ReLu);
     let mut layer2 = Layer::new(10, 10, layer::ActivationFn::Softmax);
 
-    let iterations = 100;
+    let iterations = 500;
 
     for i in 1..=iterations {
         // println!("starting");
@@ -117,6 +117,7 @@ fn main() -> Result<()> {
         // println!("forwarded layer1");
         layer2.forward(&layer1.a);
         // println!("forwarded layer2");
+        // println!("a2[..][0]: {:?}", layer2.a.slice(s![.., 0]));
 
         let alpha = 0.1;
         let one_hot_y = one_hot_encode(&y_train);
@@ -146,16 +147,14 @@ fn main() -> Result<()> {
 }
 
 fn get_predictions(a2: &Array2<f64>) -> Array1<f64> {
-    // a2.axis_iter(Axis(0))
-
     let preds = a2
         .axis_iter(Axis(1))
         .map(|col| {
             col.iter()
                 .enumerate()
-                .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+                .max_by(|(_, a), (_, b)| a.partial_cmp(b).expect(&format!("a:{}, b: {}", a, b)))
                 .map(|(index, _)| index as f64)
-                .unwrap() // Safe unwrap since we know the column is not empty
+                .expect(&format!("Column must not be empty"))
         })
         .collect();
     Array1::from_vec(preds)
@@ -185,7 +184,8 @@ pub fn one_hot_encode(y: &Array1<f64>) -> Array2<f64> {
     //  [0,0,0,0]
     //  [0,0,1,0]
     //  ]
-    let mut arr = Array2::zeros((10, y.shape()[0]));
+    let mut arr = Array2::zeros((10, y.len()));
+    println!("y shape= {:?}", y.shape());
     for (i, &x) in y.iter().enumerate() {
         arr[(x as usize, i)] = 1.;
     }
