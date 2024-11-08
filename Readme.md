@@ -3,7 +3,7 @@
 * Accuracy: approx. 85%
 
 ## Dataset
-* from kaggle
+* from [kaggle](https://www.kaggle.com/competitions/digit-recognizer/data "digit recognizer dataset")
 * each record has 785 columns
     *  column 1: label
     *  columns 2-785: pixel data ranging from 0-255
@@ -36,7 +36,7 @@
         * dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
         * dW1 = (1/m) * (dZ1 . (X.T))
         * dB1 = (1/m) * sum(dZ1)
-* Architecture and inspiration from: https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s
+* Architecture and inspiration from: [@SamsonZhangTheSalmon](https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s)
 
 ## How To Run
 * Prerequisites: Install Rust
