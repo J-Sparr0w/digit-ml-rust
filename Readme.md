@@ -2,6 +2,13 @@
 * A neural network built using rust and ndarray lib for matrix manipulations. 
 * Accuracy: approx. 85%
 
+## Dataset
+* from kaggle
+* each record has 785 columns
+    *  column 1: label
+    *  columns 2-785: pixel data ranging from 0-255
+    
+
 ## Neural Network Architecture:
 * Network has two layers
     * input => 785xm
