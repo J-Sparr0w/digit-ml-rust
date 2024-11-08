@@ -14,21 +14,21 @@
     * Z(l) => weighted sum of layer l (wx+b)
  
     * Forward Prop:
-    * X = input (or A0)
-    * Z1 = W1 . X + b1
-    * A1 = ReLu(Z1)
-    * Z2 = W2 . A1 + b2
-    * A2 = Softmax(Z2)
-    * output = A2
-    * Flow:  X->Z1->A1->Z2->A2
+        * X = input (or A0)
+        * Z1 = W1 . X + b1
+        * A1 = ReLu(Z1)
+        * Z2 = W2 . A1 + b2
+        * A2 = Softmax(Z2)
+        * output = A2
+        * Flow:  X->Z1->A1->Z2->A2
  
     * Backward Prop:
-    * dZ2 = A2 - Y
-    * dW2 = (1/m) * (dZ2 . A1.T)
-    * dB2 = (1/m) sum(dZ2)
-    * dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
-    * dW1 = (1/m) * (dZ1 . (X.T))
-    * dB1 = (1/m) * sum(dZ1)
+        * dZ2 = A2 - Y
+        * dW2 = (1/m) * (dZ2 . A1.T)
+        * dB2 = (1/m) sum(dZ2)
+        * dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
+        * dW1 = (1/m) * (dZ1 . (X.T))
+        * dB1 = (1/m) * sum(dZ1)
 * Architecture and inspiration from: https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s
 
 ## How To Run

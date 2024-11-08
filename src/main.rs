@@ -113,8 +113,5 @@ fn main() -> Result<()> {
 
     network.train(0.1, 500);
 
-    // println!("out shape: {:?}", out.shape());
-    // println!("out shape: {:?}", out.slice(s![.., 0]));
-
     Ok(())
 }
