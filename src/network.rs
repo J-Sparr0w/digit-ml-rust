@@ -74,6 +74,7 @@ impl<'a> Network2<'a> {
             y,
         }
     }
+
     pub fn train(&mut self, alpha: f64, iterations: i32) {
         let m = self.n_input;
         let one_hot_y = one_hot_encode(&self.y);
@@ -102,3 +103,6 @@ impl<'a> Network2<'a> {
         }
     }
 }
+
+
+

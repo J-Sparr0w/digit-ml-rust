@@ -1,6 +1,6 @@
 use anyhow::{Context, Ok, Result};
 use layer::Layer;
-use ndarray::{s, Array1, Array2, Axis};
+use ndarray::{s, Array2};
 use ndarray_rand::rand::{seq::SliceRandom, thread_rng};
 use network::Network2;
 
@@ -113,11 +113,8 @@ fn main() -> Result<()> {
 
     network.train(0.1, 500);
 
-   
-
     // println!("out shape: {:?}", out.shape());
     // println!("out shape: {:?}", out.slice(s![.., 0]));
 
     Ok(())
 }
-
