@@ -1,5 +1,7 @@
 # Digit Recognizer Neural Network 
 * A neural network built using rust and ndarray lib for matrix manipulations. 
+* Accuracy: approx. 85%
+
 ## Neural Network Architecture:
 * Network has two layers
     * input => 785xm
@@ -27,6 +29,7 @@
     * dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
     * dW1 = (1/m) * (dZ1 . (X.T))
     * dB1 = (1/m) * sum(dZ1)
+* Architecture and inspiration from: https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s
 
 ## How To Run
 * Prerequisites: Install Rust
