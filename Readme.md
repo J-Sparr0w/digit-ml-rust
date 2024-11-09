@@ -36,7 +36,7 @@
         * dZ1 = W2.T.dZ2 * ReLU_deriv(Z1)
         * dW1 = (1/m) * (dZ1 . (X.T))
         * dB1 = (1/m) * sum(dZ1)
-* Architecture and inspiration from: [@SamsonZhangTheSalmon 's neural network from scratch in python](https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s)
+* Architecture and inspiration from: [@SamsonZhangTheSalmon](https://www.youtube.com/watch?v=w8yWXqWQYmU&t=538s "neural network from scratch in python")
 
 ## How To Run
 * Prerequisites: Install Rust

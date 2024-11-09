@@ -1,9 +1,11 @@
-use anyhow::{Context, Ok, Result};
+use anyhow::{Ok, Result};
+use csv_ndarray::csv_to_ndarray;
 use layer::Layer;
 use ndarray::{s, Array2};
 use ndarray_rand::rand::{seq::SliceRandom, thread_rng};
 use network::Network2;
 
+mod csv_ndarray;
 mod layer;
 mod network;
 
@@ -28,34 +30,6 @@ fn shuffle_rows(array: &mut Array2<f64>) {
     }
 }
 
-fn csv_to_ndarray(file_path: &str) -> Result<Array2<f64>> {
-    let mut rdr = csv::Reader::from_path(file_path).unwrap();
-
-    let df = rdr
-        .records()
-        .map(|record| {
-            record
-                .context("Failed while iterating through csv records")
-                .unwrap()
-                .iter()
-                .map(|x| {
-                    x.parse()
-                        .context("Failed while parsing string to f64")
-                        .unwrap()
-                })
-                .collect::<Vec<f64>>()
-        })
-        .collect::<Vec<Vec<f64>>>();
-
-    let rows = df.len();
-    let cols = df[0].len();
-
-    let flat_df = df.into_iter().flatten().collect::<Vec<f64>>();
-    let array = Array2::from_shape_vec((rows, cols), flat_df)?;
-
-    Ok(array)
-}
-
 fn main() -> Result<()> {
     //data:
     //  each record has 785 columns
@@ -68,9 +42,9 @@ fn main() -> Result<()> {
     let (m, n) = (data.shape()[0], data.shape()[1]);
     shuffle_rows(&mut data); //shuffling is not reproducible
 
-    let data_dev = data.slice(s![0..1000, ..]).t().to_owned();
-    let y_dev = data_dev.slice(s![0, ..]);
-    let x_dev = data_dev.slice(s![1..n, ..]).mapv(|x| x / 255.); //shape: [784, 1000]
+    let data_eval = data.slice(s![0..1000, ..]).t().to_owned();
+    let y_eval = data_eval.slice(s![0, ..]);
+    let x_eval = data_eval.slice(s![1..n, ..]).mapv(|x| x / 255.); //shape: [784, 1000]
 
     let data_train = data.slice(s![1000.., ..]).t().to_owned();
     let y_train = data_train.slice(s![0, ..]).to_owned();
@@ -111,7 +85,10 @@ fn main() -> Result<()> {
         y_train,
     );
 
-    network.train(0.1, 500);
+    network.train(0.1, 1);
 
+    network.save()?;
+    network.eval()?;
+    
     Ok(())
 }

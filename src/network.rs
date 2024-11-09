@@ -1,5 +1,11 @@
-use crate::layer::Layer;
+use crate::{
+    csv_ndarray::{csv_to_ndarray, save_array_to_csv},
+    layer::Layer,
+};
+use anyhow::Ok;
 use ndarray::{Array1, Array2, Axis};
+use std::io::Write;
+use std::{fs, path::Path};
 
 pub struct Network2<'a> {
     n_input: usize,
@@ -21,7 +27,7 @@ pub fn one_hot_encode(y: &Array1<f64>) -> Array2<f64> {
     //  [0,0,1,0]
     // ]
     let mut arr = Array2::zeros((10, y.len()));
-    println!("y shape= {:?}", y.shape());
+    // println!("y shape= {:?}", y.shape());
     for (i, &x) in y.iter().enumerate() {
         arr[(x as usize, i)] = 1.;
     }
@@ -102,7 +108,38 @@ impl<'a> Network2<'a> {
             }
         }
     }
+    pub fn accuracy(&self) -> f64 {
+        get_accuracy(&get_predictions(&self.layer2.a), &self.y)
+    }
+    pub fn save(&self) -> anyhow::Result<()> {
+        let output_dir_name = "saved";
+        let path = Path::new(output_dir_name);
+        if !path.exists() {
+            fs::create_dir(path)?;
+        };
+
+        let mut summary_file = fs::File::create("saved/summary.md")?;
+        writeln!(
+            summary_file,
+            "# Digit Recognizer model\n## Accuracy: {}",
+            self.accuracy()
+        )?;
+        save_array_to_csv(&self.layer1.weights, "saved/weights1.csv")?;
+        save_array_to_csv(&self.layer2.weights, "saved/weights2.csv")?;
+        save_array_to_csv(&self.layer1.biases, "saved/biases1.csv")?;
+        save_array_to_csv(&self.layer2.biases, "saved/biases2.csv")?;
+        println!("Weights and biases saved successfully!");
+
+        Ok(())
+    }
+
+    pub fn eval(&mut self) -> anyhow::Result<()> {
+        //read weights from saved directory
+        self.layer1.weights = csv_to_ndarray("saved/weights1.csv")?;
+        self.layer2.weights = csv_to_ndarray("saved/weights2.csv")?;
+        self.layer1.biases = csv_to_ndarray("saved/biases1.csv")?;
+        self.layer2.biases = csv_to_ndarray("saved/biases2.csv")?;
+
+        Ok(())
+    }
 }
-
-
-
